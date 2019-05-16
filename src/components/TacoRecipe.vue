@@ -6,29 +6,33 @@
         <h4>Today's Taco</h4>
       </b-col>
     </b-row>
-    <div>
-    <b-row>
-      <b-col cols="10" class="recipe-style-one">
-        <div class="taco-recipe">{{ tacoSummary }}</div>
-      </b-col>
-      <b-col cols="2" class="aside-style-one"></b-col>
-    </b-row>
-    <b-row v-for="(part, index, id) in taco" :key="id" class="taco-recipe">
-      <b-col
-        cols="10"
-        :class="{ 'recipe-style-one' : (id + 1) % 2 === 0, 'recipe-style-two' : (id + 1) % 2 !== 0 }"
-      >
-        <div v-html="part.md"></div>
-        <!-- <div>{{ part.recipe }}</div> -->
-        <!-- <p v-if="part.tags">{{ part.tags }}</p> -->
-      </b-col>
-      <b-col
-        cols="2"
-        :class="{ 'aside-style-one' : (id + 1) % 2 === 0, 'aside-style-two' : (id + 1) % 2 !== 0 }"
-      >
-        <div class="text-rotate rotate-90">{{ part.name }}</div>
-      </b-col>
-    </b-row>
+    <div id="taco-recipes">
+      <b-row class="recipe-row">
+        <b-col cols="10" class="recipe-style-one">
+          <div class="recipe-text" v-html="tacoSummary"></div>
+        </b-col>
+        <b-col cols="2" class="aside-style-one"></b-col>
+      </b-row>
+      <b-row class="recipe-row" v-for="(part, index, id) in taco" :key="id">
+        <b-col
+          cols="10"
+          :class="{ 'recipe-style-one' : (id + 1) % 2 === 0, 'recipe-style-two' : (id + 1) % 2 !== 0 }"
+        >
+          <div class="recipe-text" v-html="part.md"></div>
+          <!-- <div class="recipe-text">
+            <p>{{part.recipe}}</p>
+            <p v-if="part.tags">{{part.tags}}</p>
+          </div>-->
+        </b-col>
+        <b-col
+          cols="2"
+          :class="{ 'aside-style-one' : (id + 1) % 2 === 0, 'aside-style-two' : (id + 1) % 2 !== 0 }"
+        >
+          <div class="recipe-name-column">
+            <span>{{ part.name }}</span>
+          </div>
+        </b-col>
+      </b-row>
     </div>
   </b-container>
 </template>
@@ -51,11 +55,15 @@ export default {
   computed: {
     tacoSummary: function() {
       if (this.taco) {
-        return `${this.taco.baseLayer.cleanName} with ${
+        return `${this.taco.baseLayer.cleanName} <strong>with</strong> ${
           this.taco.mixin.cleanName
-        } garnished with ${this.taco.condiment.cleanName} topped off with ${
+        } <strong>garnished with</strong> ${
+          this.taco.condiment.cleanName
+        } <strong>topped off with</strong> ${
           this.taco.seasoning.cleanName
-        } and wrapped in delicious ${this.taco.shell.cleanName}`;
+        } <strong>and wrapped in delicious</strong> ${
+          this.taco.shell.cleanName
+        }`;
       } else {
         return "";
       }
@@ -83,9 +91,18 @@ export default {
           }
         : { index: tagsIndex, tags: "" };
     },
+    sanitizeString(s) {
+      return s
+        .replace(/\s+/g, " ")
+        .replace(/^\s+|\s+$/, "")
+        .replace("=", "")
+        .replace("-", "");
+    },
     cleanRecipe(obj) {
       let { index, tags } = this.getTags(obj.recipe);
-      let recipeString = obj.recipe;
+      let recipeString = this.sanitizeString(obj.recipe);
+      // eslint-disable-next-line
+      // console.log(recipeString);
       let md = markdown.toHTML(obj.recipe);
       let cleanString = recipeString.substring(
         recipeString.lastIndexOf("=") + 1,
@@ -121,27 +138,33 @@ export default {
 };
 </script>
 <style scoped>
-.header {
-  height: 150px;
-}
-.new-taco-button {
-  margin: 1em;
-  background-color: #ff6347;
-  border-radius: 5px;
-  font-weight: bold;
-}
-.taco-recipe {
+#taco-recipes {
   color: white;
 }
-.rotate-90 {
-  transform: rotate(90deg);
+.header {
+  height: 200px;
 }
-.text-rotate {
-  /* TODO: add padding to the content */
-  /* TODO: vertically center both the recipe and name of the ingredient */
-  padding-left: 20px;
+.recipe-text {
+  padding: 20px;
+}
+.recipe-name-column {
+  transform: translateX(-50%) translateY(-50%) rotate(90deg);
+  white-space: nowrap;
   font-weight: bold;
-  white-space: pre;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+.recipe-row {
+  min-height: 150px;
+}
+.new-taco-button {
+  margin-top: 1em;
+  margin-left: 0.5em;
+  margin-bottom: 110px;
+  background-color: #ff6347;
+  border-radius: 10px;
+  font-weight: bold;
 }
 .recipe-style-one {
   background: #ff6347;
