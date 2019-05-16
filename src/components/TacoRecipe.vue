@@ -18,11 +18,7 @@
           cols="10"
           :class="{ 'recipe-style-one' : (id + 1) % 2 === 0, 'recipe-style-two' : (id + 1) % 2 !== 0 }"
         >
-          <div class="recipe-text" v-html="part.md"></div>
-          <!-- <div class="recipe-text">
-            <p>{{part.recipe}}</p>
-            <p v-if="part.tags">{{part.tags}}</p>
-          </div>-->
+          <div class="recipe-text" v-html="part.recipe"></div>
         </b-col>
         <b-col
           cols="2"
@@ -81,40 +77,12 @@ export default {
           console.warn(err);
         });
     },
-    getTags(value) {
-      let tagsIndex = value.indexOf("tags");
-
-      return tagsIndex > -1
-        ? {
-            index: tagsIndex,
-            tags: value.substring(tagsIndex, value.length).trim()
-          }
-        : { index: tagsIndex, tags: "" };
-    },
-    sanitizeString(s) {
-      return s
-        .replace(/\s+/g, " ")
-        .replace(/^\s+|\s+$/, "")
-        .replace("=", "")
-        .replace("-", "");
-    },
     cleanRecipe(obj) {
-      let { index, tags } = this.getTags(obj.recipe);
-      let recipeString = this.sanitizeString(obj.recipe);
-      // eslint-disable-next-line
-      // console.log(recipeString);
-      let md = markdown.toHTML(obj.recipe);
-      let cleanString = recipeString.substring(
-        recipeString.lastIndexOf("=") + 1,
-        index
-      );
-      obj.recipe = cleanString;
+      obj.recipe = markdown.toHTML(obj.recipe);
       let cleanName = obj.name.replace(/ *\([^)]*\) */g, "");
       return {
         ...obj,
-        tags,
-        cleanName,
-        md
+        cleanName
       };
     },
     createTaco(data) {
@@ -124,8 +92,6 @@ export default {
       let shell = this.cleanRecipe(data["shell"]);
       let condiment = this.cleanRecipe(data["condiment"]);
 
-      // remove string delimited with multiple equal signs
-      // create new lines from either * (asterisks) or numbers (1., 2., etc.)
       return {
         baseLayer,
         seasoning,
