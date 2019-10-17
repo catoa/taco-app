@@ -1,5 +1,7 @@
 # taco-app
 
+[Browse the app](https://taco-app-deploy.s3.amazonaws.com/index.html)
+
 ## Project setup
 ```
 yarn install
